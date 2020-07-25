@@ -1,17 +1,17 @@
 import dotenv from 'dotenv';
-import path from "path";
+import path from 'path';
 
 dotenv.config({ path: path.join(__dirname, '/../../.env') });
 
 const config = {
     port: process.env.PORT || 4000,
-    host: process.env.HOST || "http://localhost:4000",
-    nodeEnv: process.env.NODE_ENV || "development",
+    host: process.env.HOST || 'http://localhost:4000',
+    nodeEnv: process.env.NODE_ENV || 'development',
 
     clientUrl: process.env.CLIENT_URL,
     jwtSecret: process.env.JWT_SECRET,
     logs: {
-        level: process.env.LOG_LEVEL|| 'silly',
+        level: process.env.LOG_LEVEL || 'silly',
     },
     agenda: {
         dbCollection: process.env.AGENDA_DB_COLLECTION,
@@ -37,7 +37,7 @@ const config = {
     },
 
     typeorm: {
-        type: process.env.TYPEORM_TYPE || "postgres",
+        type: process.env.TYPEORM_TYPE || 'postgres',
         host: process.env.TYPEORM_HOST,
         port: Number(process.env.TYPEORM_PORT),
         username: process.env.TYPEORM_USERNAME,
@@ -48,6 +48,10 @@ const config = {
         entities: ['src/entity/**/*.ts'],
         migrations: ['src/migration/**/*.ts'],
         subscribers: ['src/subscriber/**/*.ts'],
+    },
+
+    sparkpost: {
+        apiKey: process.env.SPARKPOST_API_KEY,
     },
 };
 

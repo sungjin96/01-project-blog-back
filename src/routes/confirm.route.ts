@@ -1,5 +1,4 @@
 import express, { Router } from 'express';
-import IORedis from 'ioredis';
 import { Container } from 'typedi';
 import UserService from '../services/user.service';
 
@@ -10,20 +9,13 @@ export default (app: Router) => {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
         const { debug, error } = Container.get('logger');
-        const { get } = Container.get('redis');
 
         debug('Calling Sign-Up Mutation with params: %o', { id });
         try {
-            const userId = await get(id);
+            const userService = Container.get(UserService);
 
-            if (userId) {
-                const userService = Container.get(UserService);
-
-                const result = await userService.UserConfirmUpdate({ id: userId });
-                res.send(result);
-            } else {
-                res.send('invalid');
-            }
+            const result = await userService.UserConfirmUpdate({ id });
+            res.send(result);
         } catch (e) {
             error('🔥 error: %o', e);
             return {

@@ -1,7 +1,4 @@
-import IORedis from 'ioredis';
+import Redis from 'ioredis';
 
-export default async (): Promise<IORedis.Redis> => {
-    const redis = new IORedis();
-
-    return redis;
-};
+const redis = new Redis();
+export default redis;

@@ -1,7 +1,7 @@
 import { Container, Inject, Service } from 'typedi';
 import { compareBcrypt, setBcrypt } from '../utils/common.utils';
 import shortId from 'shortid';
-import { createConfirmEmailLink } from '../utils/email.util';
+import { createConfirmEmailLink, sendEmail } from '../utils/email.util';
 
 @Service()
 export default class UserService {
@@ -40,7 +40,7 @@ export default class UserService {
             this.logger.silly('유저 정보 저장 중...');
             await resultUser.save();
 
-            await createConfirmEmailLink({ url, id: resultUser.id, redis: this.redis });
+            await sendEmail(email, await createConfirmEmailLink({ url, id: resultUser.id, redis: this.redis }));
 
             return {
                 data: 'true',
@@ -53,9 +53,17 @@ export default class UserService {
 
     async UserConfirmUpdate({ id }) {
         try {
-            await this.userEntity.update({ id }, { confirmed: true });
-            await this.redis.del(id);
-            return 'ok';
+            this.logger.silly('Redis에서 ID 조회 중...');
+            const userId = await this.redis.get(id);
+            if (userId) {
+                this.logger.silly('Confirmed of user updating...');
+                await this.userEntity.update({ id: userId }, { confirmed: true });
+                this.logger.silly(`Redis Deleting by ID : ${id}`);
+                await this.redis.del(id);
+                return 'ok';
+            } else {
+                return 'invalid';
+            }
         } catch (e) {
             this.logger.error(e);
             throw e;

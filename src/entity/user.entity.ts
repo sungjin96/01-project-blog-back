@@ -63,7 +63,6 @@ export default class UserEntity extends BaseEntity {
     }
 
     @BeforeInsert()
-    @BeforeUpdate()
     addProfile() {
         this.profile = `${config.clientUrl}/profile/${this.nickName}`;
     }

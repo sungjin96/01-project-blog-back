@@ -3,6 +3,8 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import cors from 'cors';
+import config from '../config';
+import routes from '../routes';
 
 export default async ({ app }: { app: express.Application }) => {
     // TODO: Graphql 로 개발 한다면 굳이 필요 없는 미들웨어라 나중에 삭제 예정
@@ -14,6 +16,9 @@ export default async ({ app }: { app: express.Application }) => {
     if (process.env.NODE_ENV === 'development') {
         app.use(cors({ origin: `${process.env.CLIENT_URL}` }));
     }
+
+    // app.use(config.api.prefix, routes());
+    app.use('/', routes());
 
     /// catch 404 and forward to error handler
     app.use((req, res, next) => {

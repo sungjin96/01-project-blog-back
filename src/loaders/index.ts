@@ -12,7 +12,7 @@ export default async ({ expressApp }) => {
     const connection = await typeormLoader();
     Logger.info('TypeOrm 로딩 완료');
 
-    const redis = await RedisLoader();
+    const redis = RedisLoader;
     Logger.info('✌️ Redis Server 로딩 완료');
 
     await containerLoader({ entities, connection, redis });
@@ -20,8 +20,6 @@ export default async ({ expressApp }) => {
 
     await apolloLoader({ app: expressApp });
     Logger.info('✌️ Apollo Server 로딩 완료');
-
-    expressApp.use(config.api.prefix, routes());
 
     await expressLoader({ app: expressApp });
     Logger.info('Express 설정 완료');
