@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    // resolve modules as you would expect
+    "moduleResolution": "node",
+    // leave imports as they are
+    "module": "commonjs",
+    // do not transpile stuff like classes, async/await, ...
+    "target": "es5",
+    "charset": "utf8",
+    "lib": [
+      "es2015", "es6", "dom"
+    ],
+    "allowJs": true,
+    // produce a source map
+    "sourceMap": true,
+//    "strict": true,
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "paths": {
+      "*": ["node_modules/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "keyofStringsOnly": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false
+  },
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./node_modules/**/*"
+  ]
+}

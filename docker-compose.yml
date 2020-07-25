@@ -1,0 +1,38 @@
+version: "3.7"
+services:
+  db:
+    image: postgres:13-alpine
+    restart: always
+    container_name: "db"
+    ports:
+      - "5431:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: sungjin
+      POSTGRES_DB: blog
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/usr/src/app
+    environment:
+      TYPEORM_TYPE: postgres
+      TYPEORM_PORT: 5431
+      TYPEORM_HOST: db
+      TYPEORM_USERNAME: sungjin
+      TYPEORM_DATABASE: blog
+      TYPEORM_PASSWORD: password
+      LOG_LEVEL: 'silly'
+      PORT: 4000
+      JWT_SECRET: asdfjkl12@!_123asflj1@!!
+      APP_NAME: sungjin-log
+      CLIENT_URL: http://localhost:3000
+      NODE_ENV: development
+
