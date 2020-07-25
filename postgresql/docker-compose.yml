@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+  db:
+    image: postgres:13-alpine
+    restart: always
+    container_name: "db"
+    ports:
+      - "5431:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: sungjin
+      POSTGRES_DB: blog

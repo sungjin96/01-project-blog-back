@@ -1,39 +1,46 @@
-import {BeforeInsert, Column, Entity, PrimaryColumn} from 'typeorm';
-import {Field, ObjectType} from 'type-graphql';
-import { v4 as uuidv4 } from 'uuid';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Field, ID, ObjectType } from 'type-graphql';
+import TagEntity from './tag.entity';
+import CategoryEntity from './category.entity';
+import UserEntity from './user.entity';
 
 @ObjectType()
-@Entity("blogs")
-export default class BlogEntity {
-    @PrimaryColumn("uuid")
-    id: string ;
+@Entity('blogs')
+export default class BlogEntity extends BaseEntity {
+    @Field(() => ID)
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
     @Column()
-    @Field()
-    title:string;
+    @Field({ description: '글 제목' })
+    title: string;
 
     @Column()
-    @Field()
-    slug:string;
+    @Field({ description: '글 Slug' })
+    slug: string;
 
     @Column()
-    @Field()
-    body:string;
+    @Field({ description: '글 내용' })
+    body: string;
 
     @Column()
-    @Field()
+    @Field({ description: '글 내용 요약' })
     excerpt: string;
 
     @Column()
-    @Field()
+    @Field({ description: '글 SEO를 위한 제목' })
     mtitle: string;
 
     @Column()
-    @Field()
+    @Field({ description: '글 SEO를 위한 내용' })
     mdesc: string;
 
-    @BeforeInsert()
-    getId() {
-        this.id = uuidv4();
-    }
+    @Field((type) => UserEntity, { nullable: true })
+    user: UserEntity;
+
+    @Field((type) => [TagEntity], { nullable: true })
+    tags?: TagEntity[];
+
+    @Field((type) => CategoryEntity)
+    category: CategoryEntity;
 }

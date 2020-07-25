@@ -5,6 +5,7 @@ dotenv.config({ path: path.join(__dirname, '/../../.env') });
 
 const config = {
     port: process.env.PORT || 4000,
+    host: process.env.HOST || "http://localhost:4000",
     nodeEnv: process.env.NODE_ENV || "development",
 
     clientUrl: process.env.CLIENT_URL,

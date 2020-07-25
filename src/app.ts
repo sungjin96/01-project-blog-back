@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import loaders from './loaders';
 import express from 'express';
 import dotenv from 'dotenv';
@@ -6,10 +7,11 @@ import config from './config';
 
 dotenv.config();
 
-async function startServer() {
+export async function startServer() {
     const app = express();
 
     await loaders({ expressApp: app });
+    // @ts-ignore
     app.listen(config.port, (err) => {
         if (err) {
             Logger.error(err);

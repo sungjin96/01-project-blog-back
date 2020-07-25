@@ -1,11 +1,13 @@
-import {Query, Resolver} from "type-graphql";
+import {Args, Query, Resolver} from "type-graphql";
+import Joi from '@hapi/joi';
+import {GetRecipesArgs} from "./argsTypes/hello.args";
 
 @Resolver()
 export default class HelloResolver {
 
     @Query(() => String)
-    async hello() {
-        return 'hi';
+    async hello(@Args() {message} :GetRecipesArgs) {
+        return message;
     }
 
 }

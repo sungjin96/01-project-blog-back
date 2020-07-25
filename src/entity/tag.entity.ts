@@ -1,12 +1,12 @@
-import {BeforeInsert, Column, Entity, PrimaryColumn} from "typeorm";
-import {Field, ObjectType} from "type-graphql";
-import { v4 as uuidv4 } from 'uuid';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Field, ID, ObjectType } from 'type-graphql';
 
 @ObjectType()
-@Entity("tags")
-export default class TagEntity{
-    @PrimaryColumn("uuid")
-    id: string ;
+@Entity('tags')
+export default class TagEntity extends BaseEntity {
+    @Field(() => ID)
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
     @Column()
     @Field()
@@ -15,9 +15,4 @@ export default class TagEntity{
     @Column()
     @Field()
     slug: string;
-
-    @BeforeInsert()
-    getId() {
-        this.id = uuidv4();
-    }
 }

@@ -11,7 +11,7 @@ export default async (): Promise<any> => {
         username: config.typeorm.username,
         password: config.typeorm.password,
         database: config.typeorm.database,
-        entities: [path.join(__dirname + '/../entity/*.ts')],
+        entities: [path.join(__dirname + '/../entity/*.entity.ts')],
         synchronize: config.typeorm.synchronize,
         logging: config.typeorm.logging,
     });

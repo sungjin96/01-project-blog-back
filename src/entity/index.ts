@@ -1,18 +1,18 @@
 export default [
     {
         name: 'blogEntity',
-        model: require('./blog.entity').default,
+        entity: require('./blog.entity').default,
     },
     {
         name: 'tagEntity',
-        model: require('./tag.entity').default,
+        entity: require('./tag.entity').default,
     },
     {
         name: 'categoryEntity',
-        model: require('./category.entity').default,
+        entity: require('./category.entity').default,
     },
     {
         name: 'userEntity',
-        model: require('./user.entity').default,
+        entity: require('./user.entity').default,
     },
 ];
