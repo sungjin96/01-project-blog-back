@@ -1,6 +1,8 @@
 import { Container, Inject, Service } from 'typedi';
 import { compareBcrypt, setBcrypt } from '../utils/common.utils';
 import shortId from 'shortid';
+import { Request } from 'express';
+
 import { createConfirmEmailLink, sendEmail } from '../utils/email.util';
 
 @Service()
@@ -14,15 +16,41 @@ export default class UserService {
 
     constructor() {}
 
-    async SignUp({ email, password, url }): Promise<any> {
-        this.logger.silly('SignUp Stating');
-        this.logger.silly('this value : %o', { email, password });
+    async SignIn({ email, password, req }: { email: string; password: string; req: Request }): Promise<any> {
+        this.logger.silly('로그인 시작...');
         try {
-            this.logger.silly('유저 조회중 ...');
-            const user = await this.userEntity.findOne({ where: { email }, select: ['id'] });
-            this.logger.silly('Find User result : %o', user);
+            this.logger.silly('유저 조회 중...');
+            const user = await this.userEntity.findOne({ where: { email } });
 
-            if (user) {
+            if (!user) {
+                return {
+                    error: '존재하지 않는 이메일 입니다.',
+                };
+            }
+
+            const passValid = await compareBcrypt({ password, hash: user.password });
+
+            if (!passValid) {
+                return {
+                    error: '비밀번호가 일치하지 않습니다. 다시 한번 확인해 주세요.',
+                };
+            }
+
+            req.session!.userId = user.id;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+
+    async SignUp({ email, password, url }): Promise<any> {
+        this.logger.silly('회원가입 시작...');
+        try {
+            this.logger.silly('유저 조회 중...');
+            const userId = await this.userEntity.findOne({ where: { email }, select: ['id'] });
+            this.logger.silly('Find User result : %o', userId);
+
+            if (userId) {
                 return {
                     error: '이미 존재하는 이메일 입니다.',
                 };
@@ -32,18 +60,18 @@ export default class UserService {
             const hashPassword = await setBcrypt({ password });
 
             this.logger.silly('유저 정보 세팅 중 ..');
-            const resultUser = this.userEntity.create({
+            const user = this.userEntity.create({
                 email,
                 password: hashPassword,
                 nickName: shortId.generate(),
             });
             this.logger.silly('유저 정보 저장 중...');
-            await resultUser.save();
+            await user.save();
 
-            await sendEmail(email, await createConfirmEmailLink({ url, id: resultUser.id, redis: this.redis }));
+            // await sendEmail(email, await createConfirmEmailLink({ url, id: resultUser.id, redis: this.redis }));
 
             return {
-                data: 'true',
+                data: user,
             };
         } catch (e) {
             this.logger.error(e);

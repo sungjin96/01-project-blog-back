@@ -1,4 +1,7 @@
 import Redis from 'ioredis';
 
-const redis = new Redis();
-export default redis;
+export default () => {
+    const redis = new Redis();
+
+    return redis;
+};

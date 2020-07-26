@@ -1,36 +1,29 @@
-import { BaseEntity, BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { Field, ID, ObjectType, Root } from 'type-graphql';
+import { BaseEntity, BeforeInsert, Column, Entity, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Field, ID, ObjectType } from 'type-graphql';
 import config from '../config';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 } from 'uuid';
+import ImageEntity from './image.entity';
 
 @ObjectType()
 @Entity('users')
 export default class UserEntity extends BaseEntity {
-    @PrimaryGeneratedColumn('uuid') id: string;
+    @Field(() => ID)
+    @PrimaryColumn('uuid')
+    id: string;
 
     @Column({ nullable: true })
     @Field({ nullable: true })
-    firstName?: string;
-
-    @Column({ nullable: true })
-    @Field({ nullable: true })
-    lastName?: string;
-
-    @Field(() => String, { nullable: true })
-    username(@Root() parent: UserEntity): string | null {
-        return parent.firstName && parent.lastName ? `${parent.firstName} ${parent.lastName}` : null;
-    }
+    name?: string;
 
     @Column('varchar', { length: 255 })
     @Field()
     nickName: string;
 
-    @Column('varchar', { length: 255 })
+    @Column('text', { unique: true })
     @Field()
     email: string;
 
     @Column()
-    @Field()
     password: string;
 
     @Column()
@@ -40,6 +33,9 @@ export default class UserEntity extends BaseEntity {
     @Column({ default: 0 })
     @Field(() => Number, { defaultValue: 0 })
     role: number;
+
+    @Field((type) => ImageEntity, { nullable: true })
+    userIcon?: ImageEntity;
 
     @Column({ nullable: true })
     @Field({ nullable: true })
@@ -57,9 +53,17 @@ export default class UserEntity extends BaseEntity {
     @Field(() => Boolean, { nullable: true, defaultValue: false })
     confirmed: boolean;
 
+    @CreateDateColumn({ type: 'timestamp' })
+    @Field(() => Date)
+    createdAt: Date;
+
+    @UpdateDateColumn({ type: 'timestamp' })
+    @Field(() => Date)
+    updatedAt: Date;
+
     @BeforeInsert()
     addId() {
-        this.id = uuidv4();
+        this.id = v4();
     }
 
     @BeforeInsert()

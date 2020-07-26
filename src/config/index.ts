@@ -10,6 +10,7 @@ const config = {
 
     clientUrl: process.env.CLIENT_URL,
     jwtSecret: process.env.JWT_SECRET,
+    sessionSecret: process.env.SESSION_SECRET,
     logs: {
         level: process.env.LOG_LEVEL || 'silly',
     },

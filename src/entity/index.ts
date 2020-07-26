@@ -15,4 +15,12 @@ export default [
         name: 'userEntity',
         entity: require('./user.entity').default,
     },
+    {
+        name: 'imageEntity',
+        entity: require('./image.entity').default,
+    },
+    {
+        name: 'likeEntity',
+        entity: require('./like.entity').default,
+    },
 ];

@@ -10,14 +10,24 @@ export default async ({ app }): Promise<any> => {
     const redis = Container.get('redis');
     const { typeDefs, resolvers } = await buildTypeDefsAndResolvers({
         resolvers: [path.join(__dirname + '/../resolvers/**/*.resolver.ts')],
-        globalMiddlewares: [ResolveTime, LogAccess],
-        validate: false,
+        //globalMiddlewares: [ResolveTime, LogAccess],
+        globalMiddlewares: [ResolveTime],
+        validate: true,
     });
 
     const schema = makeExecutableSchema({ typeDefs, resolvers });
     const apolloServer = new ApolloServer({
         schema,
-        context: ({ req }) => ({ redis, url: req.protocol + '://' + req.get('host') }),
+        formatError: (err) => {
+            // Don't give the specific errors to the client.
+            if (err.message.startsWith('Database Error: ')) {
+                return new Error('Internal server error');
+            }
+            // Otherwise return the original error.  The error can also
+            // be manipulated in other ways, so long as it's returned.
+            return err;
+        },
+        context: ({ req }) => ({ redis, req, url: req.protocol + '://' + req.get('host') }),
         plugins: [logging],
     });
     apolloServer.applyMiddleware({ app });

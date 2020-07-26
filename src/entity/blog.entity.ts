@@ -1,14 +1,18 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { Field, ID, ObjectType } from 'type-graphql';
 import TagEntity from './tag.entity';
 import CategoryEntity from './category.entity';
 import UserEntity from './user.entity';
+import { v4 } from 'uuid';
+import LikeEntity from './like.entity';
+import CommentEntity from './comment.entity';
+import ImageEntity from './image.entity';
 
 @ObjectType()
 @Entity('blogs')
 export default class BlogEntity extends BaseEntity {
     @Field(() => ID)
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryColumn('uuid')
     id: string;
 
     @Column()
@@ -35,12 +39,42 @@ export default class BlogEntity extends BaseEntity {
     @Field({ description: '글 SEO를 위한 내용' })
     mdesc: string;
 
-    @Field((type) => UserEntity, { nullable: true })
-    user: UserEntity;
+    @Column('int')
+    @Field(() => Number, { defaultValue: '읽은 수' })
+    viewCount: number;
 
-    @Field((type) => [TagEntity], { nullable: true })
+    @Field(() => ImageEntity, { nullable: true })
+    thumbnail: ImageEntity;
+
+    @Field((type) => UserEntity, { nullable: true })
+    author: UserEntity;
+
+    @Field((type) => [LikeEntity!]!)
+    likes: LikeEntity[];
+
+    @Field((type) => [TagEntity!]!)
     tags?: TagEntity[];
 
     @Field((type) => CategoryEntity)
     category: CategoryEntity;
+
+    @Field((type) => [CommentEntity!]!)
+    comments: CommentEntity[];
+
+    @CreateDateColumn({ type: 'timestamp' })
+    @Field(() => Date)
+    createdAt: Date;
+
+    @UpdateDateColumn({ type: 'timestamp' })
+    @Field(() => Date)
+    updatedAt: Date;
+
+    @Column({ type: 'timestamp' })
+    @Field(() => Date)
+    deletedAt: Date;
+
+    @BeforeInsert()
+    addId() {
+        this.id = v4();
+    }
 }
