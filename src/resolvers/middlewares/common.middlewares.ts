@@ -24,13 +24,24 @@ export class LogAccess implements MiddlewareInterface<any> {
     }
 }
 
-export class isAuth implements MiddlewareInterface<any> {
+export class Logger implements MiddlewareInterface<any> {
     constructor() {}
 
-    async use({ context, info }: ResolverData<any>, next: NextFn) {
+    async use({ args }: ResolverData<any>, next: NextFn) {
         const { silly } = Container.get('logger');
-        const username: string = context.username || 'guest';
-        silly(`Logging access: ${username} -> ${info.parentType.name}.${info.fieldName}`);
+        silly(`args: ${JSON.stringify(args)}`);
+        return next();
+    }
+}
+
+export class IsAuth implements MiddlewareInterface<any> {
+    constructor() {}
+
+    async use({ context: { session } }: ResolverData<any>, next: NextFn) {
+        if (!session.userId) {
+            throw new Error('권한이 존재하지 않습니다.');
+        }
+
         return next();
     }
 }

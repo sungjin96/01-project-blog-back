@@ -1,17 +1,19 @@
-import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
-import { SignInput, SignOutput } from './user.types';
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver, UseMiddleware } from 'type-graphql';
+import { SignInput, UserOutput } from './user.types';
 import { Container } from 'typedi';
 import UserService from '../../services/user.service';
+import { IsAuth, Logger } from '../middlewares/common.middlewares';
 
 @Resolver()
 export default class UserResolver {
-    @Mutation(() => SignOutput)
-    async signIn(@Arg('data') { email, password }: SignInput, @Ctx() { req }): Promise<SignOutput> {
+    @UseMiddleware(IsAuth)
+    @Query(() => UserOutput)
+    async me(@Ctx() { session }): Promise<UserOutput> {
         const { debug, error } = Container.get('logger');
-        debug('Calling Sign-In Mutation with params: %o', { email, password });
+        debug('Calling Me Query');
         try {
             const userService = Container.get(UserService);
-            return await userService.SignIn({ email, password, req });
+            return await userService.Me({ session });
         } catch (e) {
             error('🔥 error: %o', e);
             return {
@@ -20,8 +22,23 @@ export default class UserResolver {
         }
     }
 
-    @Mutation(() => SignOutput)
-    async signUp(@Arg('data') { email, password }: SignInput, @Ctx() { url }): Promise<SignOutput> {
+    @Mutation(() => UserOutput)
+    async signIn(@Arg('data') { email, password }: SignInput, @Ctx() { session }): Promise<UserOutput> {
+        const { debug, error } = Container.get('logger');
+        debug('Calling Sign-In Mutation with params: %o', { email, password });
+        try {
+            const userService = Container.get(UserService);
+            return await userService.SignIn({ email, password, session });
+        } catch (e) {
+            error('🔥 error: %o', e);
+            return {
+                error: e.message,
+            };
+        }
+    }
+
+    @Mutation(() => UserOutput)
+    async signUp(@Arg('data') { email, password }: SignInput, @Ctx() { url }): Promise<UserOutput> {
         const { debug, error } = Container.get('logger');
         debug('Calling Sign-Up Mutation with params: %o', { email, password });
         try {

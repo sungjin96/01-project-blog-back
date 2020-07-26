@@ -49,7 +49,7 @@ export default class UserEntity extends BaseEntity {
     @Field({ nullable: true })
     gitUrl?: string;
 
-    @Column({ nullable: true, default: false })
+    @Column('bool', { nullable: true, default: false })
     @Field(() => Boolean, { nullable: true, defaultValue: false })
     confirmed: boolean;
 

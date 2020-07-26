@@ -4,6 +4,7 @@ import shortId from 'shortid';
 import { Request } from 'express';
 
 import { createConfirmEmailLink, sendEmail } from '../utils/email.util';
+import { UserOutput } from '../resolvers/user/user.types';
 
 @Service()
 export default class UserService {
@@ -16,7 +17,7 @@ export default class UserService {
 
     constructor() {}
 
-    async SignIn({ email, password, req }: { email: string; password: string; req: Request }): Promise<any> {
+    async SignIn({ email, password, session }: { email: string; password: string; session: any }): Promise<UserOutput> {
         this.logger.silly('로그인 시작...');
         try {
             this.logger.silly('유저 조회 중...');
@@ -28,6 +29,12 @@ export default class UserService {
                 };
             }
 
+            if (!user.confirmed) {
+                return {
+                    error: '이메일 인증을 확인해 주세요.',
+                };
+            }
+
             const passValid = await compareBcrypt({ password, hash: user.password });
 
             if (!passValid) {
@@ -36,14 +43,18 @@ export default class UserService {
                 };
             }
 
-            req.session!.userId = user.id;
+            session.userId = user.id;
+
+            return {
+                data: user,
+            };
         } catch (e) {
             this.logger.error(e);
             throw e;
         }
     }
 
-    async SignUp({ email, password, url }): Promise<any> {
+    async SignUp({ email, password, url }): Promise<UserOutput> {
         this.logger.silly('회원가입 시작...');
         try {
             this.logger.silly('유저 조회 중...');
@@ -69,6 +80,29 @@ export default class UserService {
             await user.save();
 
             // await sendEmail(email, await createConfirmEmailLink({ url, id: resultUser.id, redis: this.redis }));
+
+            return {
+                data: user,
+            };
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+
+    async Me({ session }): Promise<UserOutput> {
+        this.logger.silly('로그인 유저 조회 시작...');
+        try {
+            this.logger.silly('로그인 확인 중...');
+            const userId = session.userId;
+            if (!userId) {
+                return {
+                    error: '로그인을 확인해 주세요.',
+                };
+            }
+
+            this.logger.silly('유저 조회 중...');
+            const user = await this.userEntity.findOne(session.userId);
 
             return {
                 data: user,

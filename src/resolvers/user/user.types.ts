@@ -14,7 +14,7 @@ export class SignInput {
 }
 
 @ObjectType()
-export class SignOutput {
+export class UserOutput {
     @Field({ nullable: true })
     error?: string;
 

@@ -5,6 +5,7 @@ import path from 'path';
 import { logging } from './apollo.plugin';
 import { LogAccess, ResolveTime } from '../resolvers/middlewares/common.middlewares';
 import { Container } from 'typedi';
+import config from '../config';
 
 export default async ({ app }): Promise<any> => {
     const redis = Container.get('redis');
@@ -13,21 +14,25 @@ export default async ({ app }): Promise<any> => {
         //globalMiddlewares: [ResolveTime, LogAccess],
         globalMiddlewares: [ResolveTime],
         validate: true,
+        authChecker: ({ context: { session } }) => {
+            return !!session.userId;
+        },
     });
 
     const schema = makeExecutableSchema({ typeDefs, resolvers });
     const apolloServer = new ApolloServer({
         schema,
-        formatError: (err) => {
-            // Don't give the specific errors to the client.
-            if (err.message.startsWith('Database Error: ')) {
-                return new Error('Internal server error');
-            }
-            // Otherwise return the original error.  The error can also
-            // be manipulated in other ways, so long as it's returned.
-            return err;
+        context: ({ req }: any) => {
+            return { redis, session: req.session, url: req.protocol + '://' + req.get('host') };
         },
-        context: ({ req }) => ({ redis, req, url: req.protocol + '://' + req.get('host') }),
+        playground:
+            config.nodeEnv === 'production'
+                ? false
+                : {
+                      settings: {
+                          'request.credentials': 'include',
+                      },
+                  },
         plugins: [logging],
     });
     apolloServer.applyMiddleware({ app });
