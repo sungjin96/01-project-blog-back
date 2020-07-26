@@ -3,7 +3,7 @@ import { compareBcrypt, setBcrypt } from '../utils/common.utils';
 import shortId from 'shortid';
 import { Request } from 'express';
 
-import { createConfirmEmailLink, sendEmail } from '../utils/email.util';
+import { createConfirmEmailLink, sendEmail, snedNodeMailer } from '../utils/email.util';
 import { UserOutput } from '../resolvers/user/user.types';
 
 @Service()
@@ -80,6 +80,10 @@ export default class UserService {
             await user.save();
 
             // await sendEmail(email, await createConfirmEmailLink({ url, id: resultUser.id, redis: this.redis }));
+            await snedNodeMailer({
+                toEmails: [email],
+                url: await createConfirmEmailLink({ url, id: user.id, redis: this.redis }),
+            });
 
             return {
                 data: user,
