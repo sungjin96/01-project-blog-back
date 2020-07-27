@@ -52,9 +52,17 @@ export default class UserResolver {
         }
     }
 
-    @Query(() => Boolean)
-    async logout() {
-        return true;
+    @Mutation(() => Boolean)
+    async logout(@Ctx() { session }): Promise<Boolean> {
+        const { debug, error } = Container.get('logger');
+        debug('Calling LogOut Mutation');
+        try {
+          session.destroy();
+          return true;
+        } catch (e) {
+            error('🔥 error: %o', e);
+            return false;
+        }
     }
 
     @Query(() => Boolean)
