@@ -5,11 +5,11 @@ import IORedis from 'ioredis';
 
 export default ({
     entities,
-    connection,
+    manager,
     redis,
 }: {
     entities?: { name: string; entity: any }[];
-    connection: EntityManager;
+    manager: EntityManager;
     redis: IORedis.Redis;
 }) => {
     try {
@@ -19,7 +19,7 @@ export default ({
 
         Container.set('redis', redis);
         Container.set('logger', LoggerInstance);
-        Container.set('connection', connection);
+        Container.set('manager', manager);
     } catch (e) {
         LoggerInstance.error('🔥 Error on dependency injector loader: %o', e);
         throw e;

@@ -1,4 +1,17 @@
-import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import {
+    BaseEntity,
+    BeforeInsert,
+    Column,
+    CreateDateColumn,
+    Entity,
+    PrimaryColumn,
+    UpdateDateColumn,
+    ManyToOne,
+    ManyToMany,
+    OneToMany,
+    OneToOne,
+    RelationCount,
+} from 'typeorm';
 import { Field, ID, ObjectType } from 'type-graphql';
 import TagEntity from './tag.entity';
 import CategoryEntity from './category.entity';
@@ -43,21 +56,30 @@ export default class BlogEntity extends BaseEntity {
     @Field(() => Number, { defaultValue: '읽은 수' })
     viewCount: number;
 
+    @OneToOne((type) => ImageEntity, (image) => image.thumbnail)
     @Field(() => ImageEntity, { nullable: true })
     thumbnail: ImageEntity;
 
-    @Field((type) => UserEntity, { nullable: true })
+    @ManyToOne((type) => UserEntity, (user) => user.blogs)
+    @Field((type) => UserEntity)
     author: UserEntity;
 
+    @OneToMany((type) => LikeEntity, (like) => like.blog)
     @Field((type) => [LikeEntity!]!)
     likes: LikeEntity[];
 
+    @RelationCount((blog: BlogEntity) => blog.likes)
+    likeCount: number;
+
+    @ManyToMany((type) => TagEntity, (tag) => tag.blogs)
     @Field((type) => [TagEntity!]!)
     tags?: TagEntity[];
 
+    @ManyToOne((type) => CategoryEntity, (category) => category.blogs)
     @Field((type) => CategoryEntity)
     category: CategoryEntity;
 
+    @OneToMany((type) => CommentEntity, (comment) => comment.blog)
     @Field((type) => [CommentEntity!]!)
     comments: CommentEntity[];
 
@@ -69,9 +91,9 @@ export default class BlogEntity extends BaseEntity {
     @Field(() => Date)
     updatedAt: Date;
 
-    @Column({ type: 'timestamp' })
-    @Field(() => Date)
-    deletedAt: Date;
+    @Column({ type: 'timestamp', nullable: true })
+    @Field(() => Date, { nullable: true })
+    deletedAt?: Date;
 
     @BeforeInsert()
     addId() {

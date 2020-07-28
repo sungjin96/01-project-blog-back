@@ -5,6 +5,7 @@ import { Request } from 'express';
 
 import { createConfirmEmailLink, sendEmail, snedNodeMailer } from '../utils/email.util';
 import { UserOutput } from '../resolvers/user/user.types';
+import UserEntity from '../entity/user.entity';
 
 @Service()
 export default class UserService {
@@ -17,44 +18,54 @@ export default class UserService {
 
     constructor() {}
 
-    async SignIn({ email, password, session }: { email: string; password: string; session: any }): Promise<UserOutput> {
+    async SignIn({
+        email,
+        password,
+        session,
+        userOutput,
+    }: {
+        email: string;
+        password: string;
+        session: any;
+        userOutput: UserOutput;
+    }): Promise<UserOutput> {
         this.logger.silly('로그인 시작...');
         try {
             this.logger.silly('유저 조회 중...');
             const user = await this.userEntity.findOne({ where: { email } });
 
             if (!user) {
-                return {
-                    error: '존재하지 않는 이메일 입니다.',
-                };
+                userOutput.error = '존재하지 않는 이메일 입니다.';
+                userOutput.status = 400;
+                return userOutput;
             }
 
             if (!user.confirmed) {
-                return {
-                    error: '이메일 인증을 확인해 주세요.',
-                };
+                userOutput.error = '이메일 인증을 확인해 주세요.';
+                userOutput.status = 400;
+                return userOutput;
             }
 
             const passValid = await compareBcrypt({ password, hash: user.password });
 
             if (!passValid) {
-                return {
-                    error: '비밀번호가 일치하지 않습니다. 다시 한번 확인해 주세요.',
-                };
+                userOutput.error = '비밀번호가 일치하지 않습니다. 다시 한번 확인해 주세요.';
+                userOutput.status = 400;
+                return userOutput;
             }
 
             session.userId = user.id;
 
-            return {
-                data: user,
-            };
+            userOutput.data = user;
+
+            return userOutput;
         } catch (e) {
             this.logger.error(e);
             throw e;
         }
     }
 
-    async SignUp({ email, password, url }): Promise<UserOutput> {
+    async SignUp({ email, password, url, userOutput }): Promise<UserOutput> {
         this.logger.silly('회원가입 시작...');
         try {
             this.logger.silly('유저 조회 중...');
@@ -62,9 +73,10 @@ export default class UserService {
             this.logger.silly('Find User result : %o', userId);
 
             if (userId) {
-                return {
-                    error: '이미 존재하는 이메일 입니다.',
-                };
+                userOutput.error = '이미 존재하는 이메일 입니다.';
+                userOutput.status = 400;
+
+                return userOutput;
             }
 
             this.logger.silly('패스워드 암호화 중...');
@@ -80,37 +92,35 @@ export default class UserService {
             await user.save();
 
             // await sendEmail(email, await createConfirmEmailLink({ url, id: resultUser.id, redis: this.redis }));
-            await snedNodeMailer({
-                toEmails: [email],
-                url: await createConfirmEmailLink({ url, id: user.id, redis: this.redis }),
-            });
+            // await snedNodeMailer({
+            //     toEmails: [email],
+            //     url: await createConfirmEmailLink({ url, id: user.id, redis: this.redis }),
+            // });
+            userOutput.data = user;
 
-            return {
-                data: user,
-            };
+            return userOutput;
         } catch (e) {
             this.logger.error(e);
             throw e;
         }
     }
 
-    async Me({ session }): Promise<UserOutput> {
+    async Me({ session, userOutput }: { session: any; userOutput: UserOutput }): Promise<UserOutput> {
         this.logger.silly('로그인 유저 조회 시작...');
         try {
             this.logger.silly('로그인 확인 중...');
             const userId = session.userId;
             if (!userId) {
-                return {
-                    error: '로그인을 확인해 주세요.',
-                };
+                userOutput.error = '로그인을 확인해 주세요.';
+                userOutput.status = 400;
+
+                return userOutput;
             }
 
             this.logger.silly('유저 조회 중...');
-            const user = await this.userEntity.findOne(session.userId);
+            userOutput.data = await this.userEntity.findOne(session.userId);
 
-            return {
-                data: user,
-            };
+            return userOutput;
         } catch (e) {
             this.logger.error(e);
             throw e;

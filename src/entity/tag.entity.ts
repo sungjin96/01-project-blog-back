@@ -1,4 +1,12 @@
-import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import {
+    BaseEntity,
+    BeforeInsert,
+    Column,
+    CreateDateColumn,
+    Entity,
+    PrimaryColumn,
+    ManyToMany,
+} from 'typeorm';
 import { Field, ID, ObjectType } from 'type-graphql';
 import { v4 } from 'uuid';
 import BlogEntity from './blog.entity';
@@ -18,6 +26,7 @@ export default class TagEntity extends BaseEntity {
     @Field()
     slug: string;
 
+    @ManyToMany((type) => BlogEntity, (blog) => blog.tags)
     @Field(() => [BlogEntity!]!)
     blogs: BlogEntity[];
 

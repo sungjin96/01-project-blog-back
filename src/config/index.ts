@@ -54,6 +54,17 @@ const config = {
     sparkpost: {
         apiKey: process.env.SPARKPOST_API_KEY,
     },
+
+    aws: {
+        apiKey: process.env.AWS_S3_API_KEY,
+        region: process.env.AWS_S3_REGION,
+    },
+
+    file: {
+        paths: {
+            thumbnail: '',
+        },
+    },
 };
 
 export default config;

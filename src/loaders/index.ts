@@ -10,13 +10,13 @@ import config from '../config';
 import connectRedis from 'connect-redis';
 
 export default async ({ expressApp }) => {
-    const connection = await typeormLoader();
+    const manager = await typeormLoader();
     Logger.info('TypeOrm 로딩 완료');
 
     const redis = RedisLoader();
     Logger.info('✌️ Redis Server 로딩 완료');
 
-    await containerLoader({ entities, connection, redis });
+    await containerLoader({ entities, manager, redis });
     Logger.info('✌️ Container 로딩 완료');
 
     // TODO: Apollo Server 세팅전에 미들웨어를 세팅해줘야 해서 임시로 여기서 세팅 이 친구는 여기 있으면 안되는 친구인데 ...

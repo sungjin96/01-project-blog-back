@@ -1,6 +1,8 @@
-import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { BaseEntity, BeforeInsert, CreateDateColumn, Entity, PrimaryColumn, ManyToOne } from 'typeorm';
 import { Field, ID, ObjectType } from 'type-graphql';
 import { v4 } from 'uuid';
+import BlogEntity from './blog.entity';
+import UserEntity from './user.entity';
 
 @ObjectType()
 @Entity('likes')
@@ -9,9 +11,12 @@ export default class LikeEntity extends BaseEntity {
     @PrimaryColumn('uuid')
     id: string;
 
-    @Column()
-    @Field()
-    name: string;
+    @ManyToOne((type) => BlogEntity, (blog) => blog.likes)
+    blog: BlogEntity;
+
+    @ManyToOne((type) => UserEntity, (user) => user.likes)
+    @Field((type) => UserEntity)
+    author: UserEntity;
 
     @CreateDateColumn({ type: 'timestamp' })
     @Field(() => Date)

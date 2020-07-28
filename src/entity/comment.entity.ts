@@ -1,4 +1,15 @@
-import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import {
+    BaseEntity,
+    BeforeInsert,
+    Column,
+    CreateDateColumn,
+    Entity,
+    PrimaryColumn,
+    UpdateDateColumn,
+    ManyToOne,
+    OneToOne,
+    OneToMany,
+} from 'typeorm';
 import { Field, ID, ObjectType } from 'type-graphql';
 import { v4 } from 'uuid';
 import UserEntity from './user.entity';
@@ -15,12 +26,18 @@ export default class CommentEntity extends BaseEntity {
     @Field()
     comment: string;
 
+    @ManyToOne((type) => CommentEntity, (comment) => comment.childComment)
+    parentComment: CommentEntity;
+
+    @OneToMany((type) => CommentEntity, (comment) => comment.parentComment)
     @Field((type) => [CommentEntity!]!)
     childComment?: CommentEntity[];
 
+    @ManyToOne((type) => UserEntity, (user) => user.comments)
     @Field((type) => UserEntity)
     author: UserEntity;
 
+    @ManyToOne((type) => BlogEntity, (blog) => blog.comments)
     @Field((type) => BlogEntity)
     blog: BlogEntity;
 
@@ -32,9 +49,9 @@ export default class CommentEntity extends BaseEntity {
     @Field(() => Date)
     updatedAt: Date;
 
-    @Column({ type: 'timestamp' })
-    @Field(() => Date)
-    deletedAt: Date;
+    @Column({ type: 'timestamp', nullable: true })
+    @Field(() => Date, { nullable: true })
+    deletedAt?: Date;
 
     @BeforeInsert()
     addId() {

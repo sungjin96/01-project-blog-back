@@ -12,7 +12,6 @@ export default async ({ app }): Promise<any> => {
     const { typeDefs, resolvers } = await buildTypeDefsAndResolvers({
         resolvers: [path.join(__dirname + '/../resolvers/**/*.resolver.ts')],
         //globalMiddlewares: [ResolveTime, LogAccess],
-        globalMiddlewares: [ResolveTime],
         validate: true,
         authChecker: ({ context: { session } }) => {
             return !!session.userId;
